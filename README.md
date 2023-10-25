@@ -63,9 +63,9 @@ This project is licensed under the MIT License - see the [LICENSE.txt](LICENSE.t
 
 ## Contact
 
-sachin - [@your_twitter](https://twitter.com/thelllmike) - email@example.com
+sachin - [@thelllmike](https://twitter.com/thelllmike) - email@example.com
 
-Project Link: [https://github.com/your_username/repo_name](https://github.com/your_username/repo_name)
+
 
 ## Acknowledgments
 
