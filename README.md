@@ -30,8 +30,13 @@ Make sure you have Flutter installed on your machine. If not, you can download i
 4. Run the app:
    ```sh
    flutter run
+ 
    ```
-
+   
+   5.Backend :
+      ```sh
+https://github.com/thelllmike/food_detection_nutrition_backend.git
+         ```
 ## Resources
 
 Here are some resources to help you get started if this is your first Flutter project:
