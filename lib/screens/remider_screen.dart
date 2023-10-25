@@ -8,6 +8,7 @@ import 'package:foodie/common_widgets/snackbar.dart';
 import 'package:foodie/constants.dart';
 import 'package:foodie/main.dart';
 import 'package:foodie/main_layout.dart';
+import 'package:foodie/models/food_model.dart';
 import 'package:foodie/screens/nutrition_screen.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
@@ -56,7 +57,9 @@ class _ReminderScreenState extends State<ReminderScreen> {
     super.dispose();
   }
 
-  Future<void> uploadFile(File image, {required Function(Map<String, dynamic> data) success, required Function(String message) failed}) async {
+  Future<void> uploadFile(File image,
+      {required Function(Map<String, dynamic> data) success,
+      required Function(String message) failed}) async {
     try {
       Map<String, dynamic> response = await ApiService().uploadImage(image);
 
@@ -79,14 +82,28 @@ class _ReminderScreenState extends State<ReminderScreen> {
         _isLoading = false;
       });
 
-      String? detectedFood = data['class'];
+      FoodInfo foodInfo = FoodInfo.fromJson({
+        "class": "churros",
+        "confidence": 0.6927967667579651,
+        "nutrition_info": {
+          "Food Category ": "churros",
+          "Carbohydratesy": "high",
+          "Protein": "Low",
+          "Fat": "Moderate",
+          "Fiber": "Low",
+          "Vitamins and Minerals":
+              "Minimal (churros do not provide significant vitamins or minerals)"
+        }
+      });
 
-      if (detectedFood != null && detectedFood != "") {
+      // String? detectedFood = data['class'];
+
+      if (foodInfo.foodClass != null) {
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => NutritionScreen(
-              detectedFood: detectedFood,
+              foodInfo: foodInfo,
               mealTime: mealTimeList[_selectedIndex],
               diseases: widget.diseases,
             ),
@@ -158,115 +175,115 @@ class _ReminderScreenState extends State<ReminderScreen> {
         padding: EdgeInsets.only(top: 20),
         child: _isLoading
             ? const Center(
-          child: CircularProgressIndicator(),
-        )
+                child: CircularProgressIndicator(),
+              )
             : Column(
-          children: [
-            Container(
-              width: size.width,
-              child: SingleChildScrollView(
-                child: Row(
-                  children: [
-                    _foodTypeShowingTile('Breakfast', 0),
-                    _foodTypeShowingTile('Lunch', 1),
-                    _foodTypeShowingTile('Dinner', 2),
-                    _foodTypeShowingTile('Other', 3)
-                  ],
-                ),
-              ),
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      margin: EdgeInsets.only(top: 25),
-                      width: size.width - 170,
-                      height: size.width - 170,
-                      decoration: BoxDecoration(
-                          color: AppColors.primaryColor,
-                          borderRadius: BorderRadius.circular(
-                            20,
-                          )),
-                      child: AspectRatio(
-                        aspectRatio: _controller!.value.aspectRatio,
-                        child: (imagePath != null)
-                            ? ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
-                          child: Image.file(
-                            File(imagePath!),
-                            width: 200,
-                            height: 200,
-                            fit: BoxFit.cover,
-                          ),
-                        )
-                            : Stack(
-                          children: [
-                            Positioned(
-                              top: 0,
-                              left: 0,
-                              right: 0,
-                              bottom: 0,
-                              child: ClipRRect(
-                                borderRadius:
-                                BorderRadius.circular(20),
-                                child: CameraPreview(_controller!),
-                              ),
+                children: [
+                  Container(
+                    width: size.width,
+                    child: SingleChildScrollView(
+                      child: Row(
+                        children: [
+                          _foodTypeShowingTile('Breakfast', 0),
+                          _foodTypeShowingTile('Lunch', 1),
+                          _foodTypeShowingTile('Dinner', 2),
+                          _foodTypeShowingTile('Other', 3)
+                        ],
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            margin: EdgeInsets.only(top: 25),
+                            width: size.width - 170,
+                            height: size.width - 170,
+                            decoration: BoxDecoration(
+                                color: AppColors.primaryColor,
+                                borderRadius: BorderRadius.circular(
+                                  20,
+                                )),
+                            child: AspectRatio(
+                              aspectRatio: _controller!.value.aspectRatio,
+                              child: (imagePath != null)
+                                  ? ClipRRect(
+                                      borderRadius: BorderRadius.circular(20),
+                                      child: Image.file(
+                                        File(imagePath!),
+                                        width: 200,
+                                        height: 200,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    )
+                                  : Stack(
+                                      children: [
+                                        Positioned(
+                                          top: 0,
+                                          left: 0,
+                                          right: 0,
+                                          bottom: 0,
+                                          child: ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                            child: CameraPreview(_controller!),
+                                          ),
+                                        ),
+                                        Positioned.fill(
+                                            child: Visibility(
+                                          visible: _cameraLoading,
+                                          child: const Center(
+                                            child: CircularProgressIndicator(),
+                                          ),
+                                        ))
+                                      ],
+                                    ),
                             ),
-                            Positioned.fill(
-                                child: Visibility(
-                                  visible: _cameraLoading,
-                                  child: const Center(
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                ))
-                          ],
-                        ),
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              _takePicture();
+                            },
+                            icon: const Icon(
+                              Icons.camera_alt,
+                              size: 50,
+                            ),
+                          ),
+                          MainButton(
+                            size: size,
+                            title: 'Upload Image',
+                            onTap: () {
+                              _selectImageFromGallery();
+                            },
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          MainButton(
+                            size: size,
+                            title: 'Analyse Nutritions',
+                            onTap: () {
+                              if (imagePath != null) {
+                                _analyseNutritions();
+                              } else {
+                                showSnackBar(
+                                    isError: true,
+                                    msg:
+                                        'Please select the image before analysis.');
+                              }
+                            },
+                          )
+                        ],
                       ),
                     ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        _takePicture();
-                      },
-                      icon: const Icon(
-                        Icons.camera_alt,
-                        size: 50,
-                      ),
-                    ),
-                    MainButton(
-                      size: size,
-                      title: 'Upload Image',
-                      onTap: () {
-                        _selectImageFromGallery();
-                      },
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    MainButton(
-                      size: size,
-                      title: 'Analyse Nutritions',
-                      onTap: () {
-                        if (imagePath != null) {
-                          _analyseNutritions();
-                        } else {
-                          showSnackBar(
-                              isError: true,
-                              msg:
-                              'Please select the image before analysis.');
-                        }
-                      },
-                    )
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -299,15 +316,15 @@ class _ReminderScreenState extends State<ReminderScreen> {
                 padding: const EdgeInsets.only(left: 2, right: 2),
                 child: _selectedIndex == btnIndex
                     ? Image.asset(
-                  'assets/icons/on_switch.png',
-                  height: 20,
-                  width: 20,
-                )
+                        'assets/icons/on_switch.png',
+                        height: 20,
+                        width: 20,
+                      )
                     : Image.asset(
-                  'assets/icons/off_switch.png',
-                  height: 20,
-                  width: 20,
-                ),
+                        'assets/icons/off_switch.png',
+                        height: 20,
+                        width: 20,
+                      ),
               ),
               Text(
                 foodType,

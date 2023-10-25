@@ -33,7 +33,7 @@ class FirebaseService {
       'Carbs': 0.0,
       'Protein': 0.0,
       'Fat': 0.0,
-      'Sugar': 0.0,
+      'Fiber': 0.0,
     };
     print(day);
     try {
@@ -41,18 +41,18 @@ class FirebaseService {
           .collection('meals')
           .where('dayName', isEqualTo: day)
           .get();
-      
+
       querySnapshot.docs.forEach((doc) {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
 
         double? carbs =
-            double.tryParse(data['nutritions']['Carbs']?.replaceAll('%', ''));
+            _getPercentageRelavantToValue(data['nutritions']['Carbohydratesy']);
         double? protein =
-            double.tryParse(data['nutritions']['Protein']?.replaceAll('%', ''));
+            _getPercentageRelavantToValue(data['nutritions']['Protein']);
         double? fat =
-            double.tryParse(data['nutritions']['Fat']?.replaceAll('%', ''));
-        double? sugar =
-            double.tryParse(data['nutritions']['Sugar']?.replaceAll('%', ''));
+            _getPercentageRelavantToValue(data['nutritions']['Fat']);
+        double? fiber =
+           _getPercentageRelavantToValue(data['nutritions']['Fiber']);
 
         if (carbs != null) {
           percentageMap['Carbs'] = percentageMap['Carbs']! + carbs;
@@ -63,20 +63,20 @@ class FirebaseService {
         if (fat != null) {
           percentageMap['Fat'] = percentageMap['Fat']! + fat;
         }
-        if (sugar != null) {
-          percentageMap['Sugar'] = percentageMap['Sugar']! + sugar;
+        if (fiber != null) {
+          percentageMap['Fiber'] = percentageMap['Fiber']! + fiber;
         }
       });
       int totalRecords = querySnapshot.docs.length;
       double total = percentageMap['Carbs']! +
           percentageMap['Protein']! +
           percentageMap['Fat']! +
-          percentageMap['Sugar']!;
-      if (totalRecords >1) {
+          percentageMap['Fiber']!;
+      if (totalRecords > 1) {
         percentageMap['Carbs'] = (percentageMap['Carbs']! / total) * 100;
         percentageMap['Protein'] = (percentageMap['Protein']! / total) * 100;
         percentageMap['Fat'] = (percentageMap['Fat']! / total) * 100;
-        percentageMap['Sugar'] = (percentageMap['Sugar']! / total) * 100;
+        percentageMap['Fiber'] = (percentageMap['Fiber']! / total) * 100;
       }
     } catch (e) {
       showSnackBar(
@@ -84,5 +84,17 @@ class FirebaseService {
     }
 
     return percentageMap;
+  }
+
+  double _getPercentageRelavantToValue(String value) {
+    if (value == 'high') {
+      return 75;
+    } else if (value == 'Moderate') {
+      return 50;
+    } else if (value == 'Low') {
+      return 25;
+    } else {
+      return 0;
+    }
   }
 }
